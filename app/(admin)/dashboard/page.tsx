@@ -116,10 +116,19 @@ export default function AdminDashboardPage() {
       setHasNextPage(photosData.hasNextPage);
       setPage(1);
 
-      if (!guestsResponse.ok) throw new Error('Nu s-au putut încărca invitații.');
-      const guestsData = await guestsResponse.json();
-      setGuestList(guestsData.map((g: any) => ({
-        id: g.id, name: g.isAnonymous ? 'ANONIM' : g.fullName || 'Oaspete fără nume', photoCount: g.photoCount,
+      type GuestFromApi = {
+        id: string;
+        fullName: string | null;
+        isAnonymous: boolean;
+        photoCount: number;
+      };
+      
+      const guestsData: GuestFromApi[] = await guestsResponse.json();
+      
+      setGuestList(guestsData.map((g) => ({
+        id: g.id, 
+        name: g.isAnonymous ? 'ANONIM' : g.fullName || 'Oaspete fără nume', 
+        photoCount: g.photoCount,
       })));
 
       if (languageResponse.ok) {

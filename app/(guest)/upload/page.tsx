@@ -168,7 +168,7 @@ export default function UploadPage() {
                 <FormItem><FormLabel>Nume album (Opțional)</FormLabel><FormControl><Input placeholder="ex. Pregătiri, Ceremonia" {...field} disabled={isProcessing || processingFinished} /></FormControl><FormDescription>Organizează fotografiile în albume. Necesită completarea numelui.</FormDescription><FormMessage /></FormItem>
               )}/>
             </div>
-            <FormField control={form.control} name="photos" render={({ field }) => (
+            <FormField control={form.control} name="photos" render={() => (
               <FormItem>
                 <FormLabel>Fotografiile tale*</FormLabel>
                 <FormControl>

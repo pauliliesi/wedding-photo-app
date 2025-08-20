@@ -12,8 +12,7 @@ import {
     FolderKanban, 
     UserCircle, 
     Home, 
-    X, 
-    Loader2, 
+    X,
     ChevronLeft,
     ChevronRight,
     ArrowLeft
