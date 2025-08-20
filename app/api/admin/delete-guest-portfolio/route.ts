@@ -1,12 +1,12 @@
 // app/api/admin/delete-guest-portfolio/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabaseClient';
-import { IronSession, getIronSession } from 'iron-session';
-import { sessionOptions } from '@/lib/session';
+import { getIronSession } from 'iron-session';
+import { sessionOptions, AppSessionData } from '@/lib/session';
 import { cookies } from 'next/headers';
 
 export async function DELETE(request: NextRequest) {
-  const session = await getIronSession<IronSession<any>>(await cookies(), sessionOptions);
+  const session = await getIronSession<AppSessionData>(await cookies(), sessionOptions);
   if (!session.admin?.isLoggedIn) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }

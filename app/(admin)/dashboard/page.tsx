@@ -237,7 +237,14 @@ export default function AdminDashboardPage() {
   const handleExecuteFinalDelete = async () => {
     if (!actionToConfirm) return;
     setIsDeleting(true);
-    let endpoint = '', body: any = {}, successMessage = '';
+        type DeleteBody = 
+      | { photoId: string; storagePath: string }
+      | { guestId: string }
+      | {}; // Poate fi și un obiect gol pentru delete all
+
+    let endpoint = '';
+    let body: DeleteBody = {}; // Inițializăm ca obiect gol
+    let successMessage = '';
     try {
       switch (actionToConfirm.type) {
         case 'delete_single_photo':

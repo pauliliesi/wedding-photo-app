@@ -1,56 +1,38 @@
 // lib/session.ts
-import { IronSessionData, SessionOptions, getIronSession } from 'iron-session'; // Import getIronSession directly
-import {
-  GetServerSidePropsContext,
-  NextApiRequest, // Import NextApiRequest
-  NextApiResponse, // Import NextApiResponse
-} from 'next';
+import { SessionOptions } from 'iron-session';
 
-// Ensure environment variables are set
+// 1. Asigură-te că variabilele de mediu există
 if (!process.env.SESSION_SECRET) {
-  throw new Error(
-    'SESSION_SECRET environment variable is not set. Please generate a strong secret (at least 32 characters).'
-  );
+  throw new Error('SESSION_SECRET environment variable is not set.');
 }
 if (!process.env.SESSION_COOKIE_NAME) {
-  throw new Error(
-    'SESSION_COOKIE_NAME environment variable is not set (e.g., "wedding_app_admin_session").'
-  );
+  throw new Error('SESSION_COOKIE_NAME environment variable is not set.');
 }
 
+// 2. Exportă opțiunile de sesiune
 export const sessionOptions: SessionOptions = {
-  password: process.env.SESSION_SECRET as string,
-  cookieName: process.env.SESSION_COOKIE_NAME as string,
+  password: process.env.SESSION_SECRET,
+  cookieName: process.env.SESSION_COOKIE_NAME,
   cookieOptions: {
-    secure: process.env.NODE_ENV === 'production', // Cookie only sent over HTTPS in production
-    httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
-    sameSite: 'lax', // CSRF protection
-    maxAge: 60 * 60 * 24 * 7, // Session duration: 7 days (in seconds)
-    // path: '/', // Default is root path
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 24 * 7, // 7 zile
   },
 };
 
-// This is where we specify the typings of req.session.*
+// 3. Exportă interfața pentru datele sesiunii
+//    Acesta este tipul pe care îl vom importa în API-urile noastre.
+export interface AppSessionData {
+  admin?: {
+    id: string;
+    email: string;
+    isLoggedIn: true;
+  };
+}
+
+// 4. Extinde tipul global IronSessionData
+//    Acest pas îi permite lui `getIronSession` să știe ce tip de date conține sesiunea.
 declare module 'iron-session' {
-  interface IronSessionData {
-    admin?: {
-      id: string;
-      email: string;
-      isLoggedIn: true;
-    };
-  }
-}
-
-// Helper to get the session in API routes
-export function getAdminIronSession(req: NextApiRequest, res: NextApiResponse) {
-  return getIronSession<IronSessionData>(req, res, sessionOptions);
-}
-
-// Helper to get the session in SSR page props
-export function getAdminIronSessionSsr(context: GetServerSidePropsContext) {
-  return getIronSession<IronSessionData>(
-    context.req,
-    context.res,
-    sessionOptions
-  );
+  interface IronSessionData extends AppSessionData {}
 }

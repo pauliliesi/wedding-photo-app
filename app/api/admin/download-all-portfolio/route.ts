@@ -1,8 +1,8 @@
 // app/api/admin/download-all-portfolio/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabaseClient';
-import { IronSession, getIronSession } from 'iron-session';
-import { sessionOptions } from '@/lib/session';
+import { getIronSession } from 'iron-session';
+import { sessionOptions, AppSessionData } from '@/lib/session';
 import { cookies } from 'next/headers';
 import archiver from 'archiver';
 // PassThrough is still needed for the response stream. Readable is not strictly needed for this version.
@@ -12,18 +12,17 @@ import { PassThrough } from 'stream';
 interface AlbumInfo {
   album_name: string | null;
 }
-
 interface GuestInfo {
   full_name: string | null;
   is_anonymous: boolean;
 }
-
+// Tipul pentru datele extrase din baza de date
 interface PhotoMetadata {
-  id: any;
+  id: string; // UUID
   storage_path: string;
   file_name: string | null;
-  albums: AlbumInfo;
-  guests: GuestInfo;
+  albums: AlbumInfo | null; // Relație to-one = obiect sau null
+  guests: GuestInfo | null;  // Relație to-one = obiect sau null
 }
 // --- End of shared/reused type definitions ---
 
@@ -54,7 +53,7 @@ async function getFileBufferFromSupabase(storagePath: string): Promise<Buffer | 
 
 
 export async function GET(request: NextRequest) {
-  const session = await getIronSession<IronSession<any>>(await cookies(), sessionOptions);
+  const session = await getIronSession<AppSessionData>(await cookies(), sessionOptions);
 
   if (!session.admin?.isLoggedIn) {
     return NextResponse.json({ error: 'Unauthorized: Admin access required.' }, { status: 401 });
